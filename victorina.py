@@ -1,20 +1,35 @@
+import  random
+
 class Victorina:
+
+
+
     @staticmethod
-    def get_victorina_over(text) -> dict:
-        keyList: list = ['Абсолютно да', 'Абсолютно нет', 'Сомнительно да', 'Сомнительно нет']
+    def get_victorina_over(text):
+        keyList: list = []
         return {'txt': 'Викторина: ввод был: '+text, 'key': keyList}
 
-    @staticmethod
-    def get_victorina_yes() -> dict:
-        keyList: list = ['да1', 'да2']
-        return {'txt': 'Викторина: ввод да', 'key': keyList}
+
 
     @staticmethod
-    def get_victorina_no() -> dict:
-        keyList: list = ['нет1', 'нет2']
-        return {'txt': 'Викторина: ввод нет', 'key': keyList}
+    def get_victorina_questions():
+        questions: list = ['вопрос 2','вопрос 3','вопрос 4','вопрос 5','вопрос 6','вопрос 7','вопрос 8']
+        #random.shuffle(questions)
+        for i in range(len(questions)):
+            keyList: list = []
+            for k in range(1,5):
+                keyList.append('ответ '+str(i+2)+'.'+str(k))
+            keyList.append('Завершить')
+            yield {'txt': 'МОК Викторина: ' + questions[i], 'key': keyList}
+
+
 
     @staticmethod
-    def get_victorina_hello() -> dict:
-        keyList: list = ['да', 'нет', '1', '2', '3']
-        return {'txt': 'Выберите команду для викторины:', 'key': keyList}
+    def get_victorina_hello():
+        keyList: list = ['ответ 1.1', 'ответ 1.2', 'ответ 1.3', 'ответ 1.4', 'Завершить']
+        return {'txt': 'МОК Викторина: Вопрос 1:', 'key': keyList}
+
+    @staticmethod
+    def get_victorina_end():
+        keyList: list = ['Начать']
+        return {'txt': 'МОК Вывод счета:', 'key': keyList}

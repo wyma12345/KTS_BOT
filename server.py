@@ -1,5 +1,5 @@
 import vk_api.vk_api
-
+import  random
 
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.utils import get_random_id
@@ -21,14 +21,18 @@ class Server:
         self.users = {}
         #self.group = {}#нужно ли
 
+        self.lastCayBoard: VkKeyboard = VkKeyboard(one_time=True)
+        self.lastCayBoard.add_button('Привет')
+
     # Отправка сообщения
-    def send_msg(self, send_id, message, keyList:list):
+    def send_msg(self, send_id:int, message:str, keyList:list=[], anBody:bool = False ):
         """
         :param send_id: id пользователяБ которому отпр. сообщ
         :param message: содержимое отправляемого письма
         """
+        #if keyList[len(keyList)-1] == 'Завершить':
 
-        keyboard1 = VkKeyboard(one_time=True)
+        keyboard1: VkKeyboard = VkKeyboard(one_time=True)
         if len(keyList) != 0:
             for i in range(len(keyList)):
                 if keyList[i] != '':
@@ -36,9 +40,12 @@ class Server:
                 if i%2==1 and i!=len(keyList)-1:
                     keyboard1.add_line()
             keyboard1.add_line()
-        keyboard1.add_button('Сменить режим')
+            keyboard1.add_button('Сменить режим')
+            self.lastCayBoard = keyboard1
+        else:
+            keyboard1 = self.lastCayBoard
 
-        self.vk_api.messages.send(peer_id=send_id, message=message, random_id=get_random_id(), keyboard=keyboard1.get_keyboard())
+        self.vk_api.messages.send(peer_id=send_id, message=message, random_id=get_random_id(),  keyboard=keyboard1.get_keyboard())
 
 
 
@@ -54,8 +61,19 @@ class Server:
                 peer_id: int = message['peer_id']
                 from_id: int = message['from_id']
                 text: str = message['text']
+                print(message)
 
-
+                try:
+                    action = message['action']
+                    if action['type'] == 'chat_invite_user':
+                        if from_id != 151819385:
+                            self.send_msg(peer_id, 'К нам пришел ' + self.get_user_name(from_id))
+                        else:
+                            self.send_msg(peer_id, 'Всем привет! Я бот и я хочу играть)')
+                    elif action['type'] == 'chat_kick_user':
+                        self.send_msg(peer_id, 'Нас покинул  ' + self.get_user_name(from_id))
+                except:
+                    print('нет action')
 
 
 
@@ -66,11 +84,9 @@ class Server:
                 """ Основная инфа"""
                 print(" ---------- ")
                 print(" ---------- ")
-                print(" ---------- ")
                 print("Тип: ", end="")
                 if event.object['message']['id'] > 0:
                     print("private message")
-
                 else:
                     print("group message")
                     if text.count(']'):
@@ -89,28 +105,15 @@ class Server:
                 print(" ---------- ")
                 """ Основная инфа"""
 
-                text = text.strip()#убераем пробелы
-
-
-                massageOutput = self.users[str(peer_id)].input(text)
-                # выводим текст
-                self.send_msg(peer_id, massageOutput['txt'], massageOutput['key'])
-
-                """
-                if(text.lower()=='привет'):
-                    self.send_msg(peer_id, 'Привет ' +self.get_user_name(from_id) + ' как дела у вашей персоны?')
-                elif text.lower()=='инфа':
-                    self.send_msg(peer_id, 'Имя: '+self.get_user_name(from_id)+' Город: '+self.get_user_city(from_id))
-                elif text.lower()=='хорошо' or text.lower()=='нормально':
-                    self.send_msg(peer_id, 'Я рад')
-                else:
-                    self.send_msg(peer_id, 'К сожалению, я не знаю этой команды :( \n Но Илюша все равно красавчик')
-                """
+                if text != '':
+                    text = text.strip()#убераем пробелы
+                    massageOutput = self.users[str(peer_id)].input(text)
+                    # выводим текст
+                    self.send_msg(peer_id, massageOutput['txt'], massageOutput['key'], False)
 
 
 
 
 
     def get_user_name(self, user_id):
-        """ Получаем имя пользователя"""
         return self.vk_api.users.get(user_id=user_id)[0]['first_name']
