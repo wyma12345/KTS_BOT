@@ -2,7 +2,7 @@ class Quest:
     @staticmethod
     def get_quest_up() -> dict:
         keyList:list = ['вверх1', 'вверх2']
-        return {'txt': 'Квест: ввод вверх', 'key': keyList}
+        return {'txt': 'Квест: ввод вверх', 'key': keyList, 'body': True}
 
     @staticmethod
     def get_quest_down() -> dict:

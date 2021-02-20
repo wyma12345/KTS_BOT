@@ -17,6 +17,7 @@ class Commander:
         """
         Меняет режим приема команд
         :param to_mode: Измененный мод
+        :return: None
         """
         self.last_mode = self.now_mode
         self.now_mode = to_mode
